@@ -33,13 +33,13 @@ pipeline {
 
         stage('Retrieve Metadata from Source Org') {
             steps {
-                bat "sf project retrieve start --manifest manifest/package.xml --target-org %SOURCE_ALIAS% --wait 10 "
+                bat "sf project retrieve start --manifest manifest/package.xml --target-org %SOURCE_ALIAS% --wait 10 --ignore-conflicts"
             }
         }
 
         stage('Deploy Metadata to Target Org') {
             steps {
-                bat "sf project deploy start --manifest manifest/package.xml --target-org %TARGET_ALIAS% --wait 10 "
+                bat "sf project deploy start --manifest manifest/package.xml --target-org %TARGET_ALIAS% --wait 10 --ignore-conflicts"
             }
         }
     }
