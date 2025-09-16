@@ -15,19 +15,19 @@ pipeline {
         // Common
         JWT_KEY   = credentials('sf_jwt_key')   // Secret File (server.key)
         SFDC_HOST = 'https://test.salesforce.com'
-        SF_CLI    = 'sf' // Salesforce CLI must be installed on Jenkins
+        
     }
 
     stages {
         stage('Authenticate Source Org') {
             steps {
-                bat "sf auth:jwt:grant --client-id %SOURCE_CONSUMER_KEY% --jwt-key-file %JWT_KEY% --username %SOURCE_USERNAME% --instance-url %SFDC_HOST% --alias %SOURCE_ALIAS%"
+                bat "sf auth:jwt:grant --client-id %SOURCE_CONSUMER_KEY% --jwt-key-file \"%JWT_KEY%\" --username %SOURCE_USERNAME% --instance-url %SFDC_HOST% --alias %SOURCE_ALIAS%"
             }
         }
 
         stage('Authenticate Target Org') {
             steps {
-                bat "sf auth:jwt:grant --client-id %TARGET_CONSUMER_KEY% --jwt-key-file %JWT_KEY% --username %TARGET_USERNAME% --instance-url %SFDC_HOST% --alias %TARGET_ALIAS%"
+                bat "sf auth:jwt:grant --client-id %TARGET_CONSUMER_KEY% --jwt-key-file \"%JWT_KEY%\" --username %TARGET_USERNAME% --instance-url %SFDC_HOST% --alias %TARGET_ALIAS%"
             }
         }
 
