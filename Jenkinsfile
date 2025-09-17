@@ -37,13 +37,15 @@ pipeline {
 
 stage('Deploy Metadata to Target Org') {
     steps {
-        bat 'sf project deploy start --manifest manifest/package.xml --target-org %TARGET_ALIAS% --wait 10 --ignore-conflicts --test-level RunSpecifiedTests --tests HelloWorldClassTest,AdderTest'
+        // Deploy classes without running tests first
+        bat 'sf project deploy start --manifest manifest/package.xml --target-org %TARGET_ALIAS% --wait 10 --ignore-conflicts --test-level NoTestRun'
     }
 }
-          stage('Run Tests and Coverage Before Deployment') {
+
+stage('Run Tests and Coverage') {
     steps {
-        // Run tests for HelloWorldClassTest and AdderTest before deploying
-        bat 'sf apex run test --target-org %TARGET_ALIAS% --tests HelloWorldClassTest,AdderTest --code-coverage --json --output-dir coverage-results --wait 10'
+        // Run tests for HelloWorldClassTest and AdderTest after deployment
+        bat 'sf apex run test --target-org %TARGET_ALIAS% --tests HelloWorldClassTest AdderTest --code-coverage --json --output-dir coverage-results --wait 10'
     }
 }
 
