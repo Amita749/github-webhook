@@ -42,18 +42,13 @@ pipeline {
             }
         }
 
-        stage('Run Tests & Collect Coverage') {
-            steps {
-                bat """
-                sf apex run test ^
-                  --target-org %TARGET_ALIAS% ^
-                  --tests HelloWorldClassTest ^
-                  --code-coverage ^
-                  --output-dir coverage-results ^
-                  --wait 10
-                """
-            }
+       stage('Run Tests and Coverage') {
+           steps {
+                bat 'mkdir coverage-results'
+                bat "sf apex run test --target-org %TARGET_ALIAS% --tests HelloWorldClassTest --code-coverage --json --output-dir coverage-results --wait 10"
+           }
         }
+
 
         stage('Check Coverage Threshold') {
             steps {
