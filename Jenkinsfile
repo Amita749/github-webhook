@@ -15,7 +15,6 @@ pipeline {
         // Common
         JWT_KEY   = credentials('sf_jwt_key')   // Secret File (server.key)
         SFDC_HOST = 'https://test.salesforce.com'
-        
     }
 
     stages {
@@ -37,16 +36,46 @@ pipeline {
             }
         }
 
-        stage('Deploy Metadata to Target Org') {
+        stage('Deploy Metadata to Target Org with Tests') {
             steps {
-                bat "sf project deploy start --manifest manifest/package.xml --target-org %TARGET_ALIAS% --wait 10 --ignore-conflicts"
+                bat """
+                sf project deploy start ^
+                  --manifest manifest/package.xml ^
+                  --target-org %TARGET_ALIAS% ^
+                  --wait 10 ^
+                  --ignore-conflicts ^
+                  --test-level RunSpecifiedTests ^
+                  --tests HelloWorldClassTest ^
+                  --coverage-format json ^
+                  > coverage-results.json
+                """
+            }
+        }
+
+        stage('Check Coverage Threshold') {
+            steps {
+                script {
+                    def coverageFile = readFile('coverage-results.json')
+                    def json = new groovy.json.JsonSlurper().parseText(coverageFile)
+
+                    // Salesforce JSON response -> coverage summary
+                    def totalCoverage = json.coverage.coveredPercent
+
+                    echo "Org Coverage: ${totalCoverage}%"
+
+                    if (totalCoverage < 75) {
+                        error "Deployment failed: Coverage ${totalCoverage}% is below required threshold (75%)."
+                    }
+                }
             }
         }
     }
 
     post {
         always {
+            archiveArtifacts artifacts: 'coverage-results.json', onlyIfSuccessful: false
             echo "Deployment pipeline finished."
         }
     }
 }
+
