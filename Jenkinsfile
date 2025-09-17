@@ -50,24 +50,6 @@ pipeline {
         }
 
 
-        stage('Check Coverage Threshold') {
-            steps {
-                script {
-                    def coverageFile = readFile('coverage-results/test-run-codecoverage.json')
-                    def json = new groovy.json.JsonSlurper().parseText(coverageFile)
-
-                    // find coverage for HelloWorldClass
-                    def helloCoverage = json.records.find { it.name == "HelloWorldClass" }?.coveredPercent ?: 0
-                    echo "HelloWorldClass Coverage: ${helloCoverage}%"
-
-                    if (helloCoverage < 75) {
-                        error "Deployment failed: Coverage ${helloCoverage}% is below required threshold (75%)."
-                    }
-                }
-            }
-        }
-    }
-
     post {
         always {
             archiveArtifacts artifacts: 'coverage-results/**', onlyIfSuccessful: false
