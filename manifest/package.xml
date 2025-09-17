@@ -8,6 +8,14 @@
     <members>HelloWorldClassTest</members>
     <name>ApexClass</name>
 </types>
+    <types>
+    <members>Adder</members>
+    <name>ApexClass</name>
+</types>
+<types>
+    <members>Addertest</members>
+    <name>ApexClass</name>
+</types>
     <version>64.0</version>
 </Package>
 
