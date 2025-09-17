@@ -41,7 +41,7 @@ pipeline {
 
         stage('Run Tests and Coverage') {
             steps {
-                bat 'mkdir coverage-results'
+              //  bat 'mkdir coverage-results'
                 bat 'sf apex run test --target-org %TARGET_ALIAS% --tests HelloWorldClassTest --code-coverage --json --output-dir coverage-results --wait 10'
             }
         }
