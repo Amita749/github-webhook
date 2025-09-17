@@ -53,7 +53,7 @@ stage('Run Tests and Coverage') {
 
     post {
         always {
-            archiveArtifacts artifacts: 'coverage-results/**', onlyIfSuccessful: false
+           // archiveArtifacts artifacts: 'coverage-results/**', onlyIfSuccessful: false
             echo 'Deployment pipeline finished.'
         }
     }
