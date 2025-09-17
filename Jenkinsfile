@@ -38,17 +38,8 @@ pipeline {
 
         stage('Deploy Metadata to Target Org with Tests') {
             steps {
-                bat """
-                sf project deploy start ^
-                  --manifest manifest/package.xml ^
-                  --target-org %TARGET_ALIAS% ^
-                  --wait 10 ^
-                  --ignore-conflicts ^
-                  --test-level RunSpecifiedTests ^
-                  --tests HelloWorldClassTest ^
-                  --coverage-format json ^
-                  > coverage-results.json
-                """
+             bat "sf apex run test --target-org %TARGET_ALIAS% --tests HelloWorldClassTest --code-coverage --result-format json --output-dir coverage-results --wait 10"
+
             }
         }
 
