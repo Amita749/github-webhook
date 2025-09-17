@@ -36,26 +36,37 @@ pipeline {
             }
         }
 
-        stage('Deploy Metadata to Target Org with Tests') {
+        stage('Deploy Metadata to Target Org') {
             steps {
-             bat "sf apex run test --target-org %TARGET_ALIAS% --tests HelloWorldClassTest --code-coverage --result-format json --output-dir coverage-results --wait 10"
+                bat "sf project deploy start --manifest manifest/package.xml --target-org %TARGET_ALIAS% --wait 10 --ignore-conflicts --test-level RunSpecifiedTests --tests HelloWorldClassTest"
+            }
+        }
 
+        stage('Run Tests & Collect Coverage') {
+            steps {
+                bat """
+                sf apex run test ^
+                  --target-org %TARGET_ALIAS% ^
+                  --tests HelloWorldClassTest ^
+                  --code-coverage ^
+                  --output-dir coverage-results ^
+                  --wait 10
+                """
             }
         }
 
         stage('Check Coverage Threshold') {
             steps {
                 script {
-                    def coverageFile = readFile('coverage-results.json')
+                    def coverageFile = readFile('coverage-results/test-run-codecoverage.json')
                     def json = new groovy.json.JsonSlurper().parseText(coverageFile)
 
-                    // Salesforce JSON response -> coverage summary
-                    def totalCoverage = json.coverage.coveredPercent
+                    // find coverage for HelloWorldClass
+                    def helloCoverage = json.records.find { it.name == "HelloWorldClass" }?.coveredPercent ?: 0
+                    echo "HelloWorldClass Coverage: ${helloCoverage}%"
 
-                    echo "Org Coverage: ${totalCoverage}%"
-
-                    if (totalCoverage < 75) {
-                        error "Deployment failed: Coverage ${totalCoverage}% is below required threshold (75%)."
+                    if (helloCoverage < 75) {
+                        error "Deployment failed: Coverage ${helloCoverage}% is below required threshold (75%)."
                     }
                 }
             }
@@ -64,9 +75,8 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'coverage-results.json', onlyIfSuccessful: false
+            archiveArtifacts artifacts: 'coverage-results/**', onlyIfSuccessful: false
             echo "Deployment pipeline finished."
         }
     }
 }
-
